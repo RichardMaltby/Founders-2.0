@@ -595,6 +595,7 @@ namespace Founders_2._0
             Console.Out.WriteLine(" Counterfeits:" + FS.CounterfeitFolder);
             Console.Out.WriteLine(" Export:      " + FS.ExportFolder);
             Console.Out.WriteLine(" Lost:        " + FS.LostFolder);
+            Console.Out.WriteLine(" Media:       " + FS.MediaFolder);
 
             //QRCodeGenerator qrGenerator = new QRCodeGenerator();
             //QRCodeData qrCodeData = qrGenerator.CreateQrCode("The text which should be encoded.", QRCodeGenerator.ECCLevel.Q);

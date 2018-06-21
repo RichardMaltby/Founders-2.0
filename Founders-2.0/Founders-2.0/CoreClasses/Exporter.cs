@@ -795,7 +795,7 @@ namespace CloudCoinCore
         public bool writeMp3Files(int m1, int m5, int m25, int m100, int m250, String tag){
             
             bool Mp3Exported = true;
-                TempP3.mp3Start();
+                MediaMethods.mp3_application(m1,m5,m25,m100,m250,tag);
             return Mp3Exported;
         }
 

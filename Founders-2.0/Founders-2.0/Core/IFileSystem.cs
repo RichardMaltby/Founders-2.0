@@ -29,6 +29,7 @@ namespace CloudCoinCore
         public string BankFolder { get; set; }
         public string ImportedFolder { get; set; }
         public string LostFolder { get; set; }
+        public string MediaFolder { get; set; }
         public string TrashFolder { get; set; }
         public string SuspectFolder { get; set; }
         public string DetectedFolder { get; set; }
@@ -1229,10 +1230,13 @@ namespace CloudCoinCore
             return bytes;
         }//End hex string to byte array
 
-        private CloudCoin ReadMp3ToCloudCoin(String fileName)
+        private CloudCoin ReadMp3ToCloudCoin(String filepath)
         {
+            Console.WriteLine(filepath);
             CloudCoin coin = new CloudCoin();
-            TempP3.mp3Start();
+            TagLib.File fileToCheck = TagLib.File.Create(filepath);
+            Console.WriteLine(filepath);
+            Mp3Methods.ReturnCloudCoinStack(fileToCheck);
             return coin;
         }
 

@@ -10,13 +10,19 @@ using TagLib.Id3v2;
 
 namespace CloudCoinCore
 {
-    class TempP3
+    class MediaMethods
     {
-        public static bool mp3Start()
+        public static bool mp3_application(int m1, int m5, int m25, int m100, int m250, String nametag)
         {
+            Console.WriteLine("1: ", m1);
+            Console.WriteLine("5: ", m5);
+            Console.WriteLine("25: ", m25);
+            Console.WriteLine("100: ", m100);
+            Console.WriteLine("250: ", m250);
+            Console.WriteLine("String ", nametag);
             Encoding FileEncoding = Encoding.ASCII;//Define the encoding.
             TagLib.File Mp3File = null;// = TagLib.File.Create(Mp3Path); //Create TagLib file... ensures a Id3v2 header.;
-            TagLib.Ape.Tag ApeTag = null;// = Methods.CheckApeTag(Mp3File); //return existing tag. create one if none.
+            TagLib.Ape.Tag ApeTag = null;// = Mp3Methods.CheckApeTag(Mp3File); //return existing tag. create one if none.
             string[] collectCloudCoinStack = new string[3];
             //State 1:endState[0] = MP3 filename
             //State 2:endState[1] = Name of external CloudCoinStack to be inserted.
@@ -24,20 +30,19 @@ namespace CloudCoinCore
             //State 4:endState[3] =
             //State 5:endState[4] =
             //State 6:endState[5] =
-            string[] endState = new string[6]; //Keeps the current state of each case.
-            string Mp3Path = null;// = Methods.ReturnMp3FilePath(); //Save file path.
+            string[] endState = new string[6]; //Keeps the current state of each case
             bool menuStyle = true; // Discriptive / Standard
             bool makingChanges = true; //Keeps the session runnning.
-
-            Methods.printWelcome();
-            int userChoice = Methods.printOptions() + 1;
+            string Mp3Path = null;
+            Mp3Methods.printWelcome();
+            int userChoice = Mp3Methods.printOptions() + 1;
             Console.WriteLine("");
 
             while (makingChanges){
                 switch(userChoice){
                     case 1: //Select .mp3 file.
-                        Mp3Path = Methods.ReturnMp3FilePath(); //Save file path.
-                        selectMp3();
+                        Mp3Path = Mp3Methods.ReturnMp3FilePath(); //Save file path.
+                        selectMp3(Mp3Path);
                     break;
                     case 2://Select .stack file from Bank folder
                         selectStack();
@@ -49,7 +54,7 @@ namespace CloudCoinCore
                         stackFromMp3();
                     break;
                     case 5://Delete .stack from .mp3 
-                        deleteFromMp3();
+                        deleteFromMp3(Mp3Path);
                     break;
                     case 6://Save .mp3's current state
                         saveMp3();
@@ -68,26 +73,26 @@ namespace CloudCoinCore
                 ///Switch bestween discriptive and standard menus options.
                 switch(menuStyle){
                     case true:
-                        Methods.consoleGap(1);
-                        Methods.printStates(endState);
-                        userChoice = Methods.printOptions() + 1;
+                        Mp3Methods.consoleGap(1);
+                        Mp3Methods.printStates(endState);
+                        userChoice = Mp3Methods.printOptions() + 1;
                     break;
                     case false:
-                        Methods.consoleGap(1);
-                        Methods.printStates(endState);
-                        userChoice = Methods.printHelp() + 1;  
+                        Mp3Methods.consoleGap(1);
+                        Mp3Methods.printStates(endState);
+                        userChoice = Mp3Methods.printHelp() + 1;  
                     break;
                 }//end switch
 
             }//end while loop.
             Console.Out.WriteLine("Goodbye");
 
-            void selectMp3()
+            void selectMp3(string filePath)
             {
-                if(Mp3Path != "null")
+                if(filePath != "null")
                 {
-                    Mp3File = TagLib.File.Create(Mp3Path); //Create TagLib file... ensures a Id3v2 header. 
-                    ApeTag = Methods.CheckApeTag(Mp3File); //return existing tag. create one if none.
+                    Mp3File = TagLib.File.Create(filePath); //Create TagLib file... ensures a Id3v2 header. 
+                    ApeTag = Mp3Methods.CheckApeTag(Mp3File); //return existing tag. create one if none.
                     string fileName = Mp3File.Name;
                     resetEndStates(fileName, ApeTag);
                     endState[0] = "MP3 file: " + fileName + " has been selected. ";
@@ -102,7 +107,7 @@ namespace CloudCoinCore
             {
                     try
                     {
-                    collectCloudCoinStack = Methods.collectBankStacks(); //Select stacks to insert. 
+                    collectCloudCoinStack = Mp3Methods.collectBankStacks(); //Select stacks to insert. 
                         if(collectCloudCoinStack[0] != "null")
                         {
                             endState[1] = "External Stack: " + collectCloudCoinStack[0];
@@ -130,14 +135,14 @@ namespace CloudCoinCore
                         if(cloudCoinStack != null && ApeTag != null)
                         {
                             Console.Out.WriteLine("Existing Stacks in the mp3 will be overwritten");
-                            ApeTag = Methods.CheckApeTag(Mp3File);
-                            Methods.SetApeTagValue(ApeTag, cloudCoinStack, stackName);
+                            ApeTag = Mp3Methods.CheckApeTag(Mp3File);
+                            Mp3Methods.SetApeTagValue(ApeTag, cloudCoinStack, stackName);
                             endState[2] = ".stack was successfully inserted in " + Mp3File.Name;
                             endState[4] = "Stacks in " + Mp3File.Name + " have been added.";
                         }//end if
                         else
                         {
-                            Methods.SetApeTagValue(ApeTag, cloudCoinStack, stackName);
+                            Mp3Methods.SetApeTagValue(ApeTag, cloudCoinStack, stackName);
                             endState[2] = "No saved cloud coin stack.";
                         }//end else
                         Console.Out.WriteLine(endState[2]);
@@ -149,7 +154,7 @@ namespace CloudCoinCore
                     Mp3File = TagLib.File.Create(Mp3Path);
                     if(Mp3File != null)
                     {
-                        string mp3CurrentCoinStack = Methods.ReturnCloudCoinStack(Mp3File);//The current stack from the mp3 gets saved.
+                        string mp3CurrentCoinStack = Mp3Methods.ReturnCloudCoinStack(Mp3File);//The current stack from the mp3 gets saved.
                         if(mp3CurrentCoinStack != "null")
                         {
                             endState[3] = "A file was created:  " + mp3CurrentCoinStack;
@@ -165,19 +170,19 @@ namespace CloudCoinCore
                     }//end else.
             } //end stackFromMp3
 
-            void deleteFromMp3()
+            void deleteFromMp3(string filePath)
             {
                     Console.Out.WriteLine("WARNING: you are about to permenantley delete any stack files found in " + Mp3File.Name);
                     Console.Out.WriteLine("Enter/Return to continue, Any other key to go back.");
 
                     if(Console.ReadKey(true).Key == ConsoleKey.Enter)
                     {
-                        bool isDeleted = Methods.RemoveExistingStacks(ApeTag);
+                        bool isDeleted = Mp3Methods.RemoveExistingStacks(ApeTag);
                         Console.Out.WriteLine(isDeleted);
                         if(isDeleted)
                         {
                             Mp3File.Save();
-                            selectMp3();// rerun code to update states.
+                            selectMp3(filePath);// rerun code to update states.
                             endState[4] = "Any existing stacks in " + Mp3File.Name + " have been deleted.";
                         }//end if (is Deleted)
                         else
@@ -231,9 +236,34 @@ namespace CloudCoinCore
 
             }
             return true;
-        }//end main.
-    }//end TemP3
-    public class Methods
+        }//end Mp3Start.
+
+
+
+
+
+
+
+
+
+
+    }//end MediaMethods
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    public class Mp3Methods
     {
         public static KeyboardReader reader = new KeyboardReader();
         //Creates and saves a .txt ByteFile file, and outputs to the console.
@@ -312,7 +342,8 @@ namespace CloudCoinCore
 
         //Collects the stacks saved in the mp3 file. saves them in the printouts folder.
         public static string ReturnCloudCoinStack(TagLib.File Mp3File){
-            TagLib.Ape.Tag ApeTag = Methods.CheckApeTag(Mp3File);
+            
+            TagLib.Ape.Tag ApeTag = Mp3Methods.CheckApeTag(Mp3File);
             TagLib.Ape.Item CCS = ApeTag.GetItem("CloudCoinStack");
             TagLib.Ape.Item StackN = ApeTag.GetItem("StackName");
 
@@ -431,7 +462,7 @@ namespace CloudCoinCore
             }
         }      
 
-        //Methods accepts an array of strings. 
+        //Mp3Methods accepts an array of strings. 
         //If indexed? indecese will be numbered 1 through selection.Length. 
         public static void consolePrintList(string[] selection, bool indexed, string message, bool goBack){
             int index = 0;
@@ -470,7 +501,7 @@ namespace CloudCoinCore
         }
 
         ///
-        ///Methods to help standardise the UI.
+        ///Mp3Methods to help standardise the UI.
         ///
         public static void printWelcome()
         {
@@ -539,10 +570,10 @@ namespace CloudCoinCore
             Console.Out.WriteLine();
         }
 
-    }//end Methods
+    }//end Mp3Methods
 }//end addToMp3
 
 //Removed code
             // TagLib.Id3v2.Tag Mp3Tag = (TagLib.Id3v2.Tag)Mp3File.GetTag(TagTypes.Id3v2);
-            // Methods.CreateAnId3Frame(Mp3File, Mp3Tag, MyCloudCoin, FileEncoding); // Create private frame.
-            // Methods.ReadAFrame(Mp3File, Mp3Tag, FileEncoding); // Read contents of private frame.
+            // Mp3Methods.CreateAnId3Frame(Mp3File, Mp3Tag, MyCloudCoin, FileEncoding); // Create private frame.
+            // Mp3Methods.ReadAFrame(Mp3File, Mp3Tag, FileEncoding); // Read contents of private frame.
