@@ -496,8 +496,8 @@ namespace Founders_2._0
                 Console.ForegroundColor = ConsoleColor.White;
             }//end if they have more than 1000 coins
 
-            Console.Out.WriteLine("  Do you want to export your CloudCoin to (1)jpgs , (2) stack (JSON) , (3) QR Code (4) 2D Bar code file?");
-            int file_type = reader.readInt(1, 4);
+            Console.Out.WriteLine("  Do you want to export your CloudCoin to (1)jpgs , (2) stack (JSON) , (3) QR Code (4) 2D Bar code file (5) MP3?");
+            int file_type = reader.readInt(1, 5);
             // 1 jpg 2 stack
             if (onesTotalCount > 0)
             {
@@ -561,6 +561,10 @@ namespace Founders_2._0
             {
                 exporter.writeBarCode417CodeFiles(exp_1, exp_5, exp_25, exp_100, exp_250, tag);
                 // stringToFile( json, "test.txt");
+            }
+            else if (file_type == 5) 
+            {
+                exporter.writeMp3Files(exp_1, exp_5, exp_25, exp_100, exp_250, tag);
             }
 
 

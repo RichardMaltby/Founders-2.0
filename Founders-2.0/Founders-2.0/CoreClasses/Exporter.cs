@@ -792,6 +792,12 @@ namespace CloudCoinCore
             return jsonExported;
         }//end write json to file
 
+        public bool writeMp3Files(int m1, int m5, int m25, int m100, int m250, String tag){
+            
+            bool Mp3Exported = true;
+                TempP3.mp3Start();
+            return Mp3Exported;
+        }
 
         /* PRIVATE METHODS */
         private void qrCodeWriteOne(String path, String tag, String bankFileName, String frackedFileName, String partialFileName)
@@ -885,5 +891,11 @@ namespace CloudCoinCore
                 }//end if
             }//end else
         }//End write one jpeg 
+
+        private void writeMp3File()
+        {
+           
+        }// end writeMp3Files()
+        
     }// end exporter class
 }//end namespace

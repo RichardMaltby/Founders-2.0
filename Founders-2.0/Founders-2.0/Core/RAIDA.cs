@@ -70,7 +70,7 @@ namespace CloudCoinCore
                     Console.WriteLine(e.Message);
                     if(System.IO.File.Exists("directory.json"))
                     {
-                        nodesJson = System.IO.File.ReadAllText(Environment.CurrentDirectory + @"\directory.json");
+                        nodesJson = System.IO.File.ReadAllText(Environment.CurrentDirectory + @"/directory.json");
                     }
                     else
                     {

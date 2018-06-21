@@ -2,7 +2,7 @@
 using System.Text;
 using System.Linq;
 
-namespace Founders
+namespace CloudCoinCore
 {
     public class KeyboardReader
     {
