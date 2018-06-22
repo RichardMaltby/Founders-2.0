@@ -45,6 +45,7 @@ namespace CloudCoinCore
         public string QRFolder { get; set; }
         public string BarCodeFolder { get; set; }
         public string CSVFolder { get; set; }
+        public string MP3Folder { get; set; }
 
         //public abstract IFileSystem(string path);
 

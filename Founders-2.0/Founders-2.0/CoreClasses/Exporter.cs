@@ -796,15 +796,264 @@ namespace CloudCoinCore
             bool Mp3Exported = true;
             int coinCount = m1 + m5 + m25 + m100 + m250;   
             int totalSaved = m1 + (m5 * 5) + (m25 * 25) + (m100 * 100) + (m250 * 250);
-            String[] stacksReturned = new String[coinCount + 1];
-            String[] mp3CoinStack = new String[1];
-            String ccFilename = "*" + ( totalSaved + ".CloudCoins." + tagMod + ".stack");
-            String mp3Path = Mp3Methods.ReturnMp3FilePath();
-            TagLib.File mp3File = TagLib.File.Create(mp3Path);
+            int c = 0; // c= counter
+            string bankFileName = "";
+            string frackedFileName = "";
+            string partialFileName = "";
+            string denomination = "";
+           
+            String[] stacksToDelete = new String[coinCount];
+            String ccFilename = ( totalSaved + ".CloudCoins." + tagMod + ".stack");
+            TagLib.File mp3File = TagLib.File.Create(Mp3Methods.ReturnMp3FilePath());
             TagLib.Ape.Tag apeTag = Mp3Methods.CheckApeTag(mp3File); 
 
             try{
-                stacksReturned = Mp3Methods.ReturnStackFile(m1, m5, m25, m100, m250, tagMod);
+                //Get all names in bank folders
+                String[] bankedFileNames_ = new DirectoryInfo(fileSystem.BankFolder).GetFiles().Select(o => o.Name).ToArray();
+                String[] frackedFileNames_ = new DirectoryInfo(fileSystem.FrackedFolder).GetFiles().Select(o => o.Name).ToArray(); 
+                String[] partialFileNames_ = new DirectoryInfo(fileSystem.PartialFolder).GetFiles().Select(o => o.Name).ToArray();
+
+                // Add the arrays together
+                var list = new List<String>();
+                list.AddRange(bankedFileNames_);
+                list.AddRange(frackedFileNames_);
+                list.AddRange(partialFileNames_);
+                String[] arrayOfBankNames = list.ToArray();
+                // Program will spend fracked files like perfect files
+
+                foreach(string name in arrayOfBankNames){
+                    Console.WriteLine("Working 1! " + name); 
+                }//end foreach
+                // Check to see the denomination by looking at the file start
+
+                String json = "{" + Environment.NewLine;
+                json = json + "\t\"cloudcoin\": " + Environment.NewLine;
+                json = json + "\t[" + Environment.NewLine;
+
+                Stack stack = new Stack();
+                // Put all the JSON together and add header and footer
+                for (int i = 0; (i < arrayOfBankNames.Length); i++)
+                {
+                    try{
+                        string Denomination = arrayOfBankNames[i].Split('.')[0];
+                        // Console.WriteLine("denomination! " + Denomination);
+                        denomination = Denomination;
+
+                    }
+                    catch(Exception e)
+                    {
+                        Console.WriteLine("Catch: " + e);
+                    }
+                    try{
+                        string BankFileName = fileSystem.BankFolder + arrayOfBankNames[i];//File name in bank folder
+                        // Console.WriteLine("bankFileName! " + BankFileName);
+                        bankFileName = BankFileName;
+                    }
+                    catch(Exception e)
+                    {
+                        Console.WriteLine("Catch: " + e);
+                    }
+                    try{
+                        string FrackedFileName = fileSystem.FrackedFolder + arrayOfBankNames[i];//File name in fracked folder
+                        // Console.WriteLine("frackedFileName! " + FrackedFileName);
+                        frackedFileName = FrackedFileName;
+                    }
+                    catch(Exception e)
+                    {
+                        Console.WriteLine("Catch: " + e);
+                    }
+                    try{
+                        string PartialFileName = fileSystem.PartialFolder + arrayOfBankNames[i];
+                        // Console.WriteLine("partialFileName! " + PartialFileName);
+                        partialFileName = PartialFileName;
+                    }
+                    catch(Exception e)
+                    {
+                        Console.WriteLine("Catch: " + e);
+                    }
+
+                    if (denomination == "1" && m1 > 0)
+                    {
+                        if (c != 0)//This is the json seperator between each coin. It is not needed on the first coin
+                        {
+                            json += ",\n";
+                        }
+
+                        if (System.IO.File.Exists(bankFileName)) // Is it a bank file 
+                        {
+
+                            CloudCoin coinNote = fileSystem.LoadCoin(bankFileName);
+                            coinNote.aoid = null;//Clear all owner data
+                            json = json + fileSystem.setJSON(coinNote);
+                            stacksToDelete[c] = bankFileName;
+                            c++;
+                        }
+                        else if (System.IO.File.Exists(partialFileName)) // Is it a partial file 
+                        {
+                            CloudCoin coinNote = fileSystem.LoadCoin(partialFileName);
+                            //coinNote = fileSystem.loa
+                            coinNote.aoid = null;//Clear all owner data
+                            json = json + fileSystem.setJSON(coinNote);
+                            stacksToDelete[c] = partialFileName;
+                            c++;
+                        }
+                        else
+                        {
+                            CloudCoin coinNote = fileSystem.LoadCoin(frackedFileName);
+                            coinNote.aoid = null;
+                            json = json + fileSystem.setJSON(coinNote);
+                            stacksToDelete[c] = frackedFileName;
+                            c++;
+                        }
+
+                        m1--;
+                        // Get the clean JSON of the coin
+                    }// end if coin is a 1
+
+                    if (denomination == "5" && m5 > 0)
+                    {
+                        if ((c != 0))
+                        {
+                            json += ",\n";
+                        }
+
+                        if (System.IO.File.Exists(bankFileName))
+                        {
+                            CloudCoin coinNote = fileSystem.LoadCoin(bankFileName);
+                            coinNote.aoid = null;//Clear all owner data
+                            json = json + fileSystem.setJSON(coinNote);
+                            stacksToDelete[c] = bankFileName;
+                            c++;
+                        }
+                        else if (System.IO.File.Exists(partialFileName)) // Is it a partial file 
+                        {
+                            CloudCoin coinNote = fileSystem.LoadCoin(partialFileName);
+                            coinNote.aoid = null;//Clear all owner data
+                            json = json + fileSystem.setJSON(coinNote);
+                            stacksToDelete[c] = partialFileName;
+                            c++;
+                        }
+                        else
+                        {
+                            CloudCoin coinNote = fileSystem.LoadCoin(frackedFileName);
+                            coinNote.aoid = null;
+                            json = json + fileSystem.setJSON(coinNote);
+                            stacksToDelete[c] = frackedFileName;
+                            c++;
+                        }
+
+                        m5--;
+                    } // end if coin is a 5
+
+                    if (denomination == "25" && m25 > 0)
+                    {
+                        if ((c != 0))
+                        {
+                            json += ",\n";
+                        }
+
+                        if (System.IO.File.Exists(bankFileName))
+                        {
+                            CloudCoin coinNote = fileSystem.LoadCoin(bankFileName);
+                            coinNote.aoid = null;//Clear all owner data
+                            json = json + fileSystem.setJSON(coinNote);
+                            stacksToDelete[c] = bankFileName;
+                            c++;
+                        }
+                        else if (System.IO.File.Exists(partialFileName)) // Is it a partial file 
+                        {
+                            CloudCoin coinNote = fileSystem.LoadCoin(partialFileName);
+                            coinNote.aoid = null;//Clear all owner data
+                            json = json + fileSystem.setJSON(coinNote);
+                            stacksToDelete[c] = partialFileName;
+                            c++;
+                        }
+                        else
+                        {
+                            CloudCoin coinNote = fileSystem.LoadCoin(frackedFileName);
+                            coinNote.aoid = null;
+                            json = json + fileSystem.setJSON(coinNote);
+                            stacksToDelete[c] = frackedFileName;
+                            c++;
+                        }
+
+                        m25--;
+                    }// end if coin is a 25
+
+                    if (denomination == "100" && m100 > 0)
+                    {
+                        if ((c != 0))
+                        {
+                            json += ",\n";
+                        }
+
+                        if (System.IO.File.Exists(bankFileName))
+                        {
+                            CloudCoin coinNote = fileSystem.LoadCoin(bankFileName);
+                            coinNote.aoid = null;//Clear all owner data
+                            json = json + fileSystem.setJSON(coinNote);
+                            stacksToDelete[c] = bankFileName;
+                            c++;
+                        }
+                        else if (System.IO.File.Exists(partialFileName)) // Is it a partial file 
+                        {
+                            CloudCoin coinNote = fileSystem.LoadCoin(partialFileName);
+                            coinNote.aoid = null;//Clear all owner data
+                            json = json + fileSystem.setJSON(coinNote);
+                            stacksToDelete[c] = partialFileName;
+                            c++;
+                        }
+                        else
+                        {
+                            CloudCoin coinNote = fileSystem.LoadCoin(frackedFileName);
+                            coinNote.aoid = null;
+                            json = json + fileSystem.setJSON(coinNote);
+                            stacksToDelete[c] = frackedFileName;
+                            c++;
+                        }
+
+                        m100--;
+                    } // end if coin is a 100
+
+                    if (denomination == "250" && m250 > 0)
+                    {
+                        if ((c != 0))
+                        {
+                            json += ",\n";
+                        }
+                        if (System.IO.File.Exists(bankFileName))
+                        {
+                            CloudCoin coinNote = fileSystem.LoadCoin(bankFileName);
+                            coinNote.aoid = null;//Clear all owner data
+                            json = json + fileSystem.setJSON(coinNote);
+                            stacksToDelete[c] = bankFileName;
+                            c++;
+                        }
+                        else if (System.IO.File.Exists(partialFileName)) // Is it a partial file 
+                        {
+                            CloudCoin coinNote = fileSystem.LoadCoin(partialFileName);
+                            coinNote.aoid = null;//Clear all owner data
+                            json = json + fileSystem.setJSON(coinNote);
+                            stacksToDelete[c] = partialFileName;
+                            c++;
+                        }
+                        else
+                        {
+                            CloudCoin coinNote = fileSystem.LoadCoin(frackedFileName);
+                            coinNote.aoid = null;
+                            json = json + fileSystem.setJSON(coinNote);
+                            stacksToDelete[c] = frackedFileName;
+                            c++;
+                        }
+                        m250--;
+                    }// end if coin is a 250
+                    if (m1 == 0 && m5 == 0 && m25 == 0 && m100 == 0 && m250 == 0)
+                    {
+                        break;
+                    } // Break if all the coins have been called for. 
+                    json = json + "\t] " + Environment.NewLine;
+                    json += "}";  
+                }// end for each coin needed
                 if (System.IO.File.Exists(ccFilename))
                 {
                     // tack on a random number if a file already exists with the same tag
@@ -812,6 +1061,13 @@ namespace CloudCoinCore
                     int tagrand = rnd.Next(999);
                     ccFilename = (totalSaved + ".CloudCoins." + tagMod + tagrand + ".stack");
                 }//end if file exists
+                
+                Mp3Methods.consolePrintList(stacksToDelete, true, "message", true);
+                apeTag = Mp3Methods.SetApeTagValue(apeTag, json, ccFilename);
+                Console.WriteLine("Mp3 saving...");
+                mp3File.Save();
+                Console.WriteLine("Success");
+
             }
             catch(Exception e)
             {
@@ -819,21 +1075,12 @@ namespace CloudCoinCore
                 return false;
             }
 
-            mp3CoinStack[0] = stacksReturned[coinCount];
-
-            Mp3Methods.consolePrintList(mp3CoinStack, true, "message", true);
-            apeTag = Mp3Methods.SetApeTagValue(apeTag, mp3CoinStack[0], tagMod);
-            Console.WriteLine("Mp3 saving...");
-            mp3File.Save();
-            Console.WriteLine("Success");
-
-
 
             /*DELETE FILES THAT HAVE BEEN EXPORTED*/
-            for (int cc = 0; cc < stacksReturned.Length-1; cc++)
+            for (int cc = 0; cc < stacksToDelete.Length-1; cc++)
             {
                 // Console.Out.WriteLine("Deleting " + coinsToDelete[cc]);
-                if (stacksReturned[cc] != null) { System.IO.File.Delete(stacksReturned[cc]); }
+                if (stacksToDelete[cc] != null) { System.IO.File.Delete(stacksToDelete[cc]); }
             }//end for all coins to delete
 
 

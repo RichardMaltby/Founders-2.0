@@ -38,6 +38,7 @@ namespace CloudCoinClient.CoreClasses
             QRFolder = ImportFolder + Config.TAG_QR;
             BarCodeFolder = ImportFolder + Config.TAG_BARCODE;
             CSVFolder = ImportFolder + Config.TAG_CSV;
+            MP3Folder = ImportedFolder + Config.TAG_MP3;
 
         }
         public override bool CreateFolderStructure()
@@ -88,6 +89,7 @@ namespace CloudCoinClient.CoreClasses
                 Directory.CreateDirectory(QRFolder);
                 Directory.CreateDirectory(BarCodeFolder);
                 Directory.CreateDirectory(CSVFolder);
+                Directory.CreateDirectory(MP3Folder);
 
             }
             catch (Exception e)

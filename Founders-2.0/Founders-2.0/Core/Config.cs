@@ -41,6 +41,7 @@ namespace CloudCoinCore
         public static string TAG_QR = "QrCodes";
         public static string TAG_BARCODE = "Barcodes";
         public static string TAG_CSV = "CSV";
+        public static string TAG_MP3 = "MP3";
 
         public static string URL_JPEG_Exists = "https://raida.tech/jpeg_exists.php?nn={0}&sn={1}";
         public static string URL_GET_TICKET = "get_ticket?nn={0}&sn={1}&an={2}&pan={3}&denomination={4}";

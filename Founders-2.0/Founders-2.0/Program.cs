@@ -172,7 +172,7 @@ namespace Founders_2._0
             // [-?|-h|--help] [-u|--uppercase]
             #region CommandLineArguments
             CommandLineApplication commandLineApplication =
-              new CommandLineApplication(throwOnUnexpectedArg: false);
+            new CommandLineApplication(throwOnUnexpectedArg: false);
             CommandArgument names = null;
             commandLineApplication.Command("name",
               (target) =>
