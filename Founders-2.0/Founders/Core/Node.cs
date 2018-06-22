@@ -1,4 +1,5 @@
 ﻿using CloudCoinCoreDirectory;
+using CoreAPIs;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -39,6 +40,8 @@ namespace CloudCoinCore
         public MultiDetectResponse MultiResponse = new MultiDetectResponse();
         public String Ticket = "";
         RAIDANode node;
+        public NodeEchoResponse echoresult;
+        public NodeEchoResponse echresponses;
 
         //Constructor
         public Node(int NodeNumber)
@@ -48,12 +51,12 @@ namespace CloudCoinCore
             Debug.WriteLine(FullUrl);
         }
 
-        public Node(int NodeNumber, RAIDANode node)
+        public Node(int NodeNumber,RAIDANode node)
         {
             this.NodeNumber = NodeNumber;
             this.node = node;
             FullUrl = GetFullURL();
-            FullUrl = "https://" + node.urls[0].url + "/service/";
+            FullUrl = "https://" +node.urls[0].url+"/service/";
             Debug.WriteLine(FullUrl);
         }
 
@@ -119,7 +122,7 @@ namespace CloudCoinCore
         public async Task<Response> Echo()
         {
             Response echoResponse = new Response();
-            echoResponse.fullRequest = this.FullUrl + "echo?b=t";
+            echoResponse.fullRequest = this.FullUrl + "echo";
             DateTime before = DateTime.Now;
             FailsEcho = true;
             //RAIDA_Status.failsEcho[raidaID] = true;
@@ -127,6 +130,8 @@ namespace CloudCoinCore
             {
                 echoResponse.fullResponse = await Utils.GetHtmlFromURL(echoResponse.fullRequest);
                 Debug.WriteLine("Echo From Node - " + NodeNumber + ". " + echoResponse.fullResponse);
+                echoresult =  JsonConvert.DeserializeObject<NodeEchoResponse>(echoResponse.fullResponse);
+
                 //Debug.WriteLine("Echo URL - "+ FullUrl);
                 if (echoResponse.fullResponse.Contains("ready"))
                 {
@@ -474,12 +479,12 @@ namespace CloudCoinCore
         //int[] nn, int[] sn, String[] an, String[] pan, int[] d, int timeout
         public async Task<MultiDetectResponse> MultiDetect()
         {
-
+            
             /*PREPARE REQUEST*/
             try
             {
 
-                var raida = RAIDA.ActiveRAIDA;
+                var raida =RAIDA.ActiveRAIDA ;
                 int[] nn = raida.multiRequest.nn;
                 int[] sn = raida.multiRequest.sn;
                 String[] an = raida.multiRequest.an[NodeNumber - 1];
@@ -696,7 +701,7 @@ namespace CloudCoinCore
                 //    }//end if array lengths are the same
 
                 //}//End Else not a dud
-                //Break the respons into sub responses. 
+                 //Break the respons into sub responses. 
                 MultiDetectTime = Convert.ToInt32(ts.Milliseconds);
                 MultiResponse.responses = response;
                 return MultiResponse;

@@ -3,9 +3,6 @@ using System.IO;
 using System.Linq;
 using System.Collections.Generic;
 using Founders;
-using ZXing;
-using ZXing.Common;
-using Pdf417;
 using Newtonsoft.Json;
 
 namespace CloudCoinCore
@@ -792,53 +789,6 @@ namespace CloudCoinCore
             return jsonExported;
         }//end write json to file
 
-        public bool writeMp3Files(int m1, int m5, int m25, int m100, int m250, String tagMod){
-            bool Mp3Exported = true;
-            int coinCount = m1 + m5 + m25 + m100 + m250;   
-            int totalSaved = m1 + (m5 * 5) + (m25 * 25) + (m100 * 100) + (m250 * 250);
-            String[] stacksReturned = new String[coinCount + 1];
-            String[] mp3CoinStack = new String[1];
-            String ccFilename = "*" + ( totalSaved + ".CloudCoins." + tagMod + ".stack");
-            String mp3Path = Mp3Methods.ReturnMp3FilePath();
-            TagLib.File mp3File = TagLib.File.Create(mp3Path);
-            TagLib.Ape.Tag apeTag = Mp3Methods.CheckApeTag(mp3File); 
-
-            try{
-                stacksReturned = Mp3Methods.ReturnStackFile(m1, m5, m25, m100, m250, tagMod);
-                if (System.IO.File.Exists(ccFilename))
-                {
-                    // tack on a random number if a file already exists with the same tag
-                    Random rnd = new Random();
-                    int tagrand = rnd.Next(999);
-                    ccFilename = (totalSaved + ".CloudCoins." + tagMod + tagrand + ".stack");
-                }//end if file exists
-            }
-            catch(Exception e)
-            {
-                Console.WriteLine("Error: ", e);
-                return false;
-            }
-
-            mp3CoinStack[0] = stacksReturned[coinCount];
-
-            Mp3Methods.consolePrintList(mp3CoinStack, true, "message", true);
-            apeTag = Mp3Methods.SetApeTagValue(apeTag, mp3CoinStack[0], tagMod);
-            Console.WriteLine("Mp3 saving...");
-            mp3File.Save();
-            Console.WriteLine("Success");
-
-
-
-            /*DELETE FILES THAT HAVE BEEN EXPORTED*/
-            for (int cc = 0; cc < stacksReturned.Length-1; cc++)
-            {
-                // Console.Out.WriteLine("Deleting " + coinsToDelete[cc]);
-                if (stacksReturned[cc] != null) { System.IO.File.Delete(stacksReturned[cc]); }
-            }//end for all coins to delete
-
-
-            return Mp3Exported;
-        }
 
         /* PRIVATE METHODS */
         private void qrCodeWriteOne(String path, String tag, String bankFileName, String frackedFileName, String partialFileName)
@@ -932,11 +882,5 @@ namespace CloudCoinCore
                 }//end if
             }//end else
         }//End write one jpeg 
-
-        private void writeMp3File()
-        {
-           
-        }// end writeMp3Files()
-        
     }// end exporter class
 }//end namespace

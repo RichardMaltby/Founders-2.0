@@ -1,8 +1,12 @@
 using System;
 using System.IO;
 using System.Text;
-using System.Text.RegularExpressions;
 using System.Linq;
+// using Founders;
+// using ZXing;
+// using ZXing.Common;
+using System.Text.RegularExpressions;
+using System.Collections.Generic;
 using System.Runtime;
 using TagLib;
 using TagLib.Id3v2;
@@ -279,7 +283,7 @@ namespace CloudCoinCore
 
         public static KeyboardReader reader = new KeyboardReader();
         //Creates and saves a .txt ByteFile file, and outputs to the console.
-
+        public static IFileSystem fileSystem;
         //Used for debugging.
                 // public static void ReadBytes(string Mp3Path, Encoding FileEncoding){
                 //     Console.OutputEncoding = FileEncoding; //set the console output.
@@ -451,6 +455,236 @@ namespace CloudCoinCore
                 return myStack;
             }
         }
+
+        public static string[] ReturnStackFile(int m1, int m5, int m25, int m100, int m250, String tag)
+        {
+           
+            // Track the total coins
+            int coinCount = m1 + m5 + m25 + m100 + m250;
+
+            String[] coinsToReturn = new String[coinCount + 1];
+            String[] bankedFileNames = new DirectoryInfo(fileSystem.BankFolder).GetFiles().Select(o => o.Name).ToArray();//Get all names in bank folder
+            String[] frackedFileNames = new DirectoryInfo(fileSystem.FrackedFolder).GetFiles().Select(o => o.Name).ToArray(); ;
+            String[] partialFileNames = new DirectoryInfo(fileSystem.PartialFolder).GetFiles().Select(o => o.Name).ToArray();
+            
+            // Add the two arrays together
+            var list = new List<String>();
+            list.AddRange(bankedFileNames);
+            list.AddRange(frackedFileNames);
+            list.AddRange(partialFileNames);
+
+            // Program will spend fracked files like perfect files
+            bankedFileNames = list.ToArray();
+
+
+            // Check to see the denomination by looking at the file start
+            int c = 0;
+            // c= counter
+            String json = "{" + Environment.NewLine;
+            json = json + "\t\"cloudcoin\": " + Environment.NewLine;
+            json = json + "\t[" + Environment.NewLine;
+            String bankFileName;
+            String frackedFileName;
+            String partialFileName;
+            string denomination;
+            Stack stack = new Stack();
+
+            // Put all the JSON together and add header and footer
+            for (int i = 0; (i < bankedFileNames.Length); i++)
+            {
+                denomination = bankedFileNames[i].Split('.')[0];
+                bankFileName = fileSystem.BankFolder + bankedFileNames[i];//File name in bank folder
+                frackedFileName = fileSystem.FrackedFolder + bankedFileNames[i];//File name in fracked folder
+                partialFileName = fileSystem.PartialFolder + bankedFileNames[i];
+                if (denomination == "1" && m1 > 0)
+                {
+                    if (c != 0)//This is the json seperator between each coin. It is not needed on the first coin
+                    {
+                        json += ",\n";
+                    }
+
+                    if (System.IO.File.Exists(bankFileName)) // Is it a bank file 
+                    {
+                        
+                        CloudCoin coinNote = fileSystem.LoadCoin(bankFileName);
+                        coinNote.aoid = null;//Clear all owner data
+                        json = json + fileSystem.setJSON(coinNote);
+                        coinsToReturn[c] = bankFileName;
+                        c++;
+                    }
+                    else if (System.IO.File.Exists(partialFileName)) // Is it a partial file 
+                    {
+                        CloudCoin coinNote = fileSystem.LoadCoin(partialFileName);
+                        //coinNote = fileSystem.loa
+                        coinNote.aoid = null;//Clear all owner data
+                        json = json + fileSystem.setJSON(coinNote);
+                        coinsToReturn[c] = partialFileName;
+                        c++;
+                    }
+                    else
+                    {
+                        CloudCoin coinNote = fileSystem.LoadCoin(frackedFileName);
+                        coinNote.aoid = null;
+                        json = json + fileSystem.setJSON(coinNote);
+                        coinsToReturn[c] = frackedFileName;
+                        c++;
+                    }
+
+                    m1--;
+                    // Get the clean JSON of the coin
+                }// end if coin is a 1
+
+                if (denomination == "5" && m5 > 0)
+                {
+                    if ((c != 0))
+                    {
+                        json += ",\n";
+                    }
+
+                    if (System.IO.File.Exists(bankFileName))
+                    {
+                        CloudCoin coinNote = fileSystem.LoadCoin(bankFileName);
+                        coinNote.aoid = null;//Clear all owner data
+                        json = json + fileSystem.setJSON(coinNote);
+                        coinsToReturn[c] = bankFileName;
+                        c++;
+                    }
+                    else if (System.IO.File.Exists(partialFileName)) // Is it a partial file 
+                    {
+                        CloudCoin coinNote = fileSystem.LoadCoin(partialFileName);
+                        coinNote.aoid = null;//Clear all owner data
+                        json = json + fileSystem.setJSON(coinNote);
+                        coinsToReturn[c] = partialFileName;
+                        c++;
+                    }
+                    else
+                    {
+                        CloudCoin coinNote = fileSystem.LoadCoin(frackedFileName);
+                        coinNote.aoid = null;
+                        json = json + fileSystem.setJSON(coinNote);
+                        coinsToReturn[c] = frackedFileName;
+                        c++;
+                    }
+
+                    m5--;
+                } // end if coin is a 5
+
+                if (denomination == "25" && m25 > 0)
+                {
+                    if ((c != 0))
+                    {
+                        json += ",\n";
+                    }
+
+                    if (System.IO.File.Exists(bankFileName))
+                    {
+                        CloudCoin coinNote = fileSystem.LoadCoin(bankFileName);
+                        coinNote.aoid = null;//Clear all owner data
+                        json = json + fileSystem.setJSON(coinNote);
+                        coinsToReturn[c] = bankFileName;
+                        c++;
+                    }
+                    else if (System.IO.File.Exists(partialFileName)) // Is it a partial file 
+                    {
+                        CloudCoin coinNote = fileSystem.LoadCoin(partialFileName);
+                        coinNote.aoid = null;//Clear all owner data
+                        json = json + fileSystem.setJSON(coinNote);
+                        coinsToReturn[c] = partialFileName;
+                        c++;
+                    }
+                    else
+                    {
+                        CloudCoin coinNote = fileSystem.LoadCoin(frackedFileName);
+                        coinNote.aoid = null;
+                        json = json + fileSystem.setJSON(coinNote);
+                        coinsToReturn[c] = frackedFileName;
+                        c++;
+                    }
+
+                    m25--;
+                }// end if coin is a 25
+
+                if (denomination == "100" && m100 > 0)
+                {
+                    if ((c != 0))
+                    {
+                        json += ",\n";
+                    }
+
+                    if (System.IO.File.Exists(bankFileName))
+                    {
+                        CloudCoin coinNote = fileSystem.LoadCoin(bankFileName);
+                        coinNote.aoid = null;//Clear all owner data
+                        json = json + fileSystem.setJSON(coinNote);
+                        coinsToReturn[c] = bankFileName;
+                        c++;
+                    }
+                    else if (System.IO.File.Exists(partialFileName)) // Is it a partial file 
+                    {
+                        CloudCoin coinNote = fileSystem.LoadCoin(partialFileName);
+                        coinNote.aoid = null;//Clear all owner data
+                        json = json + fileSystem.setJSON(coinNote);
+                        coinsToReturn[c] = partialFileName;
+                        c++;
+                    }
+                    else
+                    {
+                        CloudCoin coinNote = fileSystem.LoadCoin(frackedFileName);
+                        coinNote.aoid = null;
+                        json = json + fileSystem.setJSON(coinNote);
+                        coinsToReturn[c] = frackedFileName;
+                        c++;
+                    }
+
+                    m100--;
+                } // end if coin is a 100
+
+                if (denomination == "250" && m250 > 0)
+                {
+                    if ((c != 0))
+                    {
+                        json += ",\n";
+                    }
+                    if (System.IO.File.Exists(bankFileName))
+                    {
+                        CloudCoin coinNote = fileSystem.LoadCoin(bankFileName);
+                        coinNote.aoid = null;//Clear all owner data
+                        json = json + fileSystem.setJSON(coinNote);
+                        coinsToReturn[c] = bankFileName;
+                        c++;
+                    }
+                    else if (System.IO.File.Exists(partialFileName)) // Is it a partial file 
+                    {
+                        CloudCoin coinNote = fileSystem.LoadCoin(partialFileName);
+                        coinNote.aoid = null;//Clear all owner data
+                        json = json + fileSystem.setJSON(coinNote);
+                        coinsToReturn[c] = partialFileName;
+                        c++;
+                    }
+                    else
+                    {
+                        CloudCoin coinNote = fileSystem.LoadCoin(frackedFileName);
+                        coinNote.aoid = null;
+                        json = json + fileSystem.setJSON(coinNote);
+                        coinsToReturn[c] = frackedFileName;
+                        c++;
+                    }
+                    m250--;
+                }// end if coin is a 250
+                if (m1 == 0 && m5 == 0 && m25 == 0 && m100 == 0 && m250 == 0)
+                {
+                    break;
+                } // Break if all the coins have been called for. 
+                json = json + "\t] " + Environment.NewLine;
+                json += "}";
+                coinsToReturn[c] = json;    
+            }// end for each coin needed
+
+            // end if write was good
+            return coinsToReturn;
+        }//end write json to file
+
+
 
         //Method to prompt a user for input. 
         public static int getUserInput(int maxNum, string message, bool goBack)
