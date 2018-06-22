@@ -1232,7 +1232,7 @@ namespace CloudCoinCore
 
         private CloudCoin ReadMp3ToCloudCoin(String filepath)
         {
-            Console.WriteLine(filepath);
+            Console.WriteLine("ReadMp3ToCloudCoin",filepath);
             CloudCoin coin = new CloudCoin();
             TagLib.File fileToCheck = TagLib.File.Create(filepath);
             Console.WriteLine(filepath);

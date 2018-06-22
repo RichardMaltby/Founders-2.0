@@ -265,6 +265,18 @@ namespace CloudCoinCore
 
     public class Mp3Methods
     {
+        //checkApeTag() verifies the mp3 is encapsulated with the needed data.
+        //SetApeTagValue() stores a cloudcoin in an mp3 file.
+        //ReturnCloudCoinStack() returns stack stored in an mp3 file.
+        //ReturnMp3FilePath() gets a list of available mp3 files.
+        //CollectBankStacks() gets a list of available stacks to insert.
+        //GetUserInput() gets integer value from the user.
+        //GetEnter() gets "Enter" input from user.
+
+        ///
+        ///Methods used to print to console.
+        ///
+
         public static KeyboardReader reader = new KeyboardReader();
         //Creates and saves a .txt ByteFile file, and outputs to the console.
 
@@ -310,18 +322,18 @@ namespace CloudCoinCore
         }
         
         ///Stores the CloudCoin.stack file as the value tied to the CloudCoinStack key.
-        public static bool SetApeTagValue(TagLib.Ape.Tag ApeTag, string MyCloudCoin, string stackName){
+        public static TagLib.Ape.Tag SetApeTagValue(TagLib.Ape.Tag ApeTag, string MyCloudCoin, string stackName){
             // Get the APEv2 tag if it exists.
             try{
                 TagLib.Ape.Item currentStacks = ApeTag.GetItem("CloudCoinStack");
                 ApeTag.SetValue("CloudCoinStack", MyCloudCoin);
                 ApeTag.SetValue("StackName", stackName);
-                return true;
+                return ApeTag;
             }
             catch(Exception e)
             {
                 Console.Out.WriteLine("The process failed: {0}", e.ToString());
-                return false;
+                return ApeTag;
             }
         }
 

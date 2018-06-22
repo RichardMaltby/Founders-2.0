@@ -564,7 +564,9 @@ namespace Founders_2._0
             }
             else if (file_type == 5) 
             {
+                Console.WriteLine("MP3");
                 exporter.writeMp3Files(exp_1, exp_5, exp_25, exp_100, exp_250, tag);
+                Console.WriteLine("End mp3");
             }
 
 

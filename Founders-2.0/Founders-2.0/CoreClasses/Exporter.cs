@@ -792,10 +792,31 @@ namespace CloudCoinCore
             return jsonExported;
         }//end write json to file
 
-        public bool writeMp3Files(int m1, int m5, int m25, int m100, int m250, String tag){
-            
+        public bool writeMp3Files(int m1, int m5, int m25, int m100, int m250, String tagMod){
             bool Mp3Exported = true;
-                MediaMethods.mp3_application(m1,m5,m25,m100,m250,tag);
+            bool stackCreated = writeJSONFile(m1, m5, m25, m100, m250, tagMod);
+                Console.WriteLine("MP3Files.1: " + stackCreated);
+
+            int totalSaved = m1 + (m5 * 5) + (m25 * 25) + (m100 * 100) + (m250 * 250);
+                Console.WriteLine("MP3Files.2 " + totalSaved);
+
+            String ccFilename = "*" + ( totalSaved + ".CloudCoins." + tagMod + ".stack");
+                Console.WriteLine("MP3Files.3: " + ccFilename);
+
+            String mp3Path = Mp3Methods.ReturnMp3FilePath();
+            TagLib.File mp3File = TagLib.File.Create(mp3Path);
+            TagLib.Ape.Tag apeTag = Mp3Methods.CheckApeTag(mp3File);
+                Console.WriteLine("MP3Files.4: ", apeTag );
+            
+            String[] mp3Coin = Directory.GetFiles("./Export", ccFilename);
+            Console.WriteLine("...");
+            Mp3Methods.consolePrintList(mp3Coin, true, "message", true);
+                
+
+                Console.WriteLine("MP3Files.5", mp3Coin);
+
+            apeTag = Mp3Methods.SetApeTagValue(apeTag, mp3Coin[0], tagMod);
+            mp3File.Save();
             return Mp3Exported;
         }
 
